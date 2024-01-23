@@ -1,0 +1,39 @@
+--Querying new customers with $100+ sales within the first 30 days of joining.
+–Table Report.dbo.CustomerStatus: show customer status for any specific date (Active date, Dropped date, current status..) Need to specify what date you’re looking for (ReportDate)
+–Table Ecommerce.dbo.Orders: Ecommerce order data, including Order Id, Customer ID, Order Date, and Order amount (Total_Sales)
+
+
+
+DECLARE @fromdate as date = '2023-1-1'
+DECLARE @todate as date = '2023-12-31'
+
+
+Select FORMAT(x.ActiveDate, 'MMMyyyy') Order_Month, Count(x.Cust_ID) Cust_Count
+
+FROM(
+
+Select c.Cust_Id,
+	   c.ActiveDate,
+	   DATEADD(day, 30, c.ActiveDate) [30day_after],
+	   SUM(o.Total_Sales) Total_Sales
+	  
+FROM Report.dbo.CustomerStatus c
+LEFT JOIN Ecommerce.dbo.Orders o
+ON c.Cust_id = o.Customer_ID
+
+
+WHERE ActiveDate between @fromdate and @todate
+AND Cast(o.Order_Date as date) between c.ActiveDate and DATEADD(day, 30, c.ActiveDate)
+AND ReportDate = '2023-12-31'  
+
+AND c.Country = 'US'
+
+GROUP BY c.Cust_Id,
+	   c.ActiveDate,
+	   DATEADD(day, 30, c.ActiveDate)
+
+)x
+
+WHERE x.Total_Sales >= 100
+
+GROUP BY FORMAT(x.ActiveDate, 'MMMyyyy')
