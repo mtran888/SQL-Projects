@@ -1,0 +1,93 @@
+—----------------------------------------------------------------------------------------------------------------------------
+--Column search: search for a column in a specific database
+
+select * from INFORMATION_SCHEMA.COLUMNS 
+where COLUMN_NAME like '%sponsor%' 
+order by TABLE_NAME, COLUMN_NAME
+
+------------------------------------------------------------
+
+SELECT t.name AS table_name, SCHEMA_NAME(schema_id) AS schema_name, c.name AS column_name 
+FROM sys.tables AS t 
+INNER JOIN sys.columns c ON t.OBJECT_ID = c.OBJECT_ID 
+WHERE c.name LIKE '%Tracking%' 
+ORDER BY schema_name, table_name
+
+—----------------------------------------------------------------------------------------------------------------------------
+
+--Table search: search for a table in a specific database
+
+select * from INFORMATION_SCHEMA.COLUMNS 
+where TABLE_NAME like '%sponsor%' 
+order by TABLE_NAME, COLUMN_NAME
+
+------------------------------------------------------------------------------------------------------------------------------
+
+--Create a table
+
+CREATE TABLE database_name.dbo.table_name
+(  
+    column1 varchar(50) NOT NULL        — column name - data type - allow NULL value or not  
+    ,column2 varchar(50) NOT NULL  
+
+);
+
+------------------------------------------------------------------------------------------------------------------------------
+
+--Rename a column in a table
+
+EXEC sp_rename ‘database_name.dbo.table_name.column1', 'relace_name', 'COLUMN';
+
+
+------------------------------------------------------------------------------------------------------------------------------
+--Insert value to table
+
+insert into database1.dbo.table1 (column1,column2)
+  values 
+
+--input values for the columns specified above, separated by commas
+--each row of data is in parenthesis (), can input many rows, separated by commas
+
+(value for column1, value for column2),        --  row 1
+(value for column1, value for column2),	-- row 2
+Delete data from table
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+--Delete rows of data based on value in specified column
+
+DELETE FROM database1.dbo.table1 WHERE column1 = 'AA'
+--delete rows of data from table1 where column1 = ‘AA
+
+
+—---------------------------------------------------------------------------------------------------------------------------
+
+--Create calendar table
+
+
+Create a table with date from @StartDate to @EndDate
+
+CREATE TABLE database1.dbo.calendar1
+(
+    [CalendarDate] DATE            - - name of column and data type
+)
+
+DECLARE @StartDate DATE
+DECLARE @EndDate DATE
+SET @StartDate = '2019-01-01'
+SET @EndDate = '2029-12-31'
+
+WHILE @StartDate <= @EndDate
+      BEGIN
+             INSERT INTO database1.dbo.calendar1
+             (
+                   CalendarDate
+             )
+             SELECT
+                   @StartDate
+
+             SET @StartDate = DATEADD(dd, 1, @StartDate)
+      END
+
+
