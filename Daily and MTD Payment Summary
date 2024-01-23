@@ -1,0 +1,35 @@
+-- Payment Summary: show daily transaction counts, total transaction amounts, by country and method (Visa, Paypal…), MTD counts and amounts by country and method.
+
+
+DECLARE @date as date = '2023-12-31'
+
+
+SELECT
+	x.Country, 
+x.Method,
+x.Count, FORMAT(ROUND(x.Amount,2),'#,0.00') as Amount,
+	SUM(x.Count) OVER (PARTITION BY x.Country) as TotalCount,
+	FORMAT(SUM(x.Amount) OVER (PARTITION BY x.Country),'#,0.00') as TotalAmount
+
+FROM (
+
+	SELECT 
+		pli.Method,
+		pli.Country,
+		COUNT(pli.Amount) OVER (PARTITION BY CONCAT(pli.Country,pli.Method,CAST(pli.Auth_Date as date))) as Count,
+		SUM(pli.Amount) OVER (PARTITION BY CONCAT(pli.Country,pli.Method,CAST(pli.Auth_Date as date))) as Amount,
+		CAST(pli.Auth_Date as date) as Date,
+		pli.Authorization_Status,
+		
+
+	FROM 
+		ecommerce.dbo.Payment_Line_Items pli
+
+	WHERE 
+		pli.Authorization_Status = 'APPROVED' 
+		AND CAST(pli.Auth_Date as date) = @date
+
+	) x
+
+GROUP BY
+	x.Country, x.Method, x.Count, x.Amount
