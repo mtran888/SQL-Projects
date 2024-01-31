@@ -1,0 +1,65 @@
+
+-- Skills used:  Aggregate Functions, Windows Functions, Converting Data Types, Data Formatting
+
+
+
+--Order count, quantity and sales per category, within a time frame
+
+Declare @fromdate as date = '1/1/2023'
+Declare @todate as date = '12/31/2023'
+
+Select Product_Category,
+	   Count( transaction_id) Order_count,
+	   SUM(Quantity) Quantiy,
+       FORMAT(SUM(Total_Amount), 'C0') Total_Amount   
+From retail_sales_dataset
+Group By Product_Category
+
+
+
+--Order count, quantity and sales per month-year
+
+Select FORMAT(CAST(Date as Date), 'MM-yyyy') Month_year,
+	   COunt(transaction_id) Order_count,
+	   SUM(Quantity) Quantiy,
+                   FORMAT(SUM(Total_Amount), 'C0') Total_Amount   
+From retail_sales_dataset
+Group By FORMAT(CAST(Date as Date), 'MM-yyyy')
+Order by 1
+
+
+
+--Order count, quantity and sales per gender, within a time frame
+
+Declare @fromdate as date = '1/1/2023'
+Declare @todate as date = '12/31/2023'
+
+Select Gender,
+product_category,
+       	Count(transaction_id) Order_count,
+	SUM(Quantity) Quantiy,
+       	FORMAT(SUM(Total_Amount), 'C0') Total_Amount   
+From retail_sales_dataset
+Where date between @fromdate and @todate
+Group By Gender,
+	   product_category
+
+---Monhly quantity, sales, and YTD Running total
+
+DECLARE @fromdate AS DATE = '2023-01-01';
+DECLARE @todate AS DATE = '2023-11-30';
+
+SELECT  FORMAT(CAST(Date AS DATE), 'MM-yyyy') AS Month_year,
+   	 SUM(Quantity) Quantity,
+    	SUM(SUM(quantity)) OVER (ORDER BY FORMAT(CAST(Date as date), 'MM-yyyy')ROWS UNBOUNDED PRECEDING) AS YTD_Quantity
+FROM retail_sales_dataset
+WHERE Date BETWEEN @fromdate AND @todate
+Group By FORMAT(CAST(Date as date), 'MM-yyyy')
+Order By 1
+
+
+
+
+
+
+
